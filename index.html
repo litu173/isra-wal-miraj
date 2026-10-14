@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Al-Isra wal-Mi'raj</title>
+  <meta name="description" content="A scrolling journey from Makkah up to Sidrat al-Muntaha and down into the warning of the Fire, drawn from the Qur'an and authentic hadith.">
+  <meta name="theme-color" content="#060a1c">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Fixed atmosphere layers (colours driven by scroll in app.js) -->
+  <div class="sky" aria-hidden="true"></div>
+  <canvas class="stars" id="stars" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+  <div class="hellglow" aria-hidden="true"></div>
+
+  <!-- Altitude indicator: top of list = highest level -->
+  <nav class="altimeter" aria-label="Levels of the journey">
+    <div class="altimeter__track"><div class="altimeter__fill"></div></div>
+    <ol class="altimeter__list"></ol>
+  </nav>
+
+  <div class="controls">
+    <button class="sound-btn" type="button" aria-pressed="false" aria-label="Sound">
+      <svg class="sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6"/></svg>
+      <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <span class="sound-label">Sound</span>
+    </button>
+    <button class="sources-btn" type="button" aria-haspopup="dialog">Sources</button>
+  </div>
+  <dialog class="sources" aria-labelledby="sources-title">
+    <div class="sources__inner">
+      <h2 id="sources-title">Sources</h2>
+      <p class="sources__lede">Every scene is drawn from the Qur’an and from narrations in Sahih al-Bukhari and Sahih Muslim, with two further narrations graded sahih (Abu Dawud, at-Tirmidhi). The English is a careful paraphrase; please return to the full texts and to scholars for study.</p>
+      <dl class="sources__list"></dl>
+      <p class="sources__note">The visuals are symbolic light and geometry. No prophet, angel or person is depicted. Hadith numbers follow sunnah.com.</p>
+      <button class="sources__close" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Rendered by app.js from data.js — highest level first, then the Earth, then the levels beneath -->
+  <main id="journey"></main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="sound.js"></script>
+</body>
+</html>

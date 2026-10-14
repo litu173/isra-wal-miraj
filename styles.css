@@ -1,0 +1,1462 @@
+/* ==========================================================================
+   Al-Isra wal-Mi'raj — styles
+   All scroll choreography is a pure function of --s (per level, set in JS):
+     --s = 0  just arrived from below      --s = 1  about to leave upward
+   ========================================================================== */
+
+:root {
+  /* driven by app.js */
+  --sky-top: #060a1c;
+  --sky-bot: #1d1526;
+  --glow: 0;
+  --hell: 0;
+  --P: 0;
+  --nav-accent: #e3b867;
+
+  /* palette */
+  --ink: #f4ecd8;
+  --muted: rgba(244, 236, 216, 0.74);
+  --faint: rgba(244, 236, 216, 0.46);
+  --hair: rgba(244, 236, 216, 0.14);
+  --gold: #e3b867;
+
+  /* type */
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --arabic: 'Amiri', 'Geeza Pro', 'Traditional Arabic', serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* layout */
+  --nav-space: clamp(150px, 16vw, 260px);
+  --gutter: clamp(24px, 6vw, 110px);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scrollbar-width: none; /* the altimeter replaces the scrollbar */
+  -webkit-text-size-adjust: 100%;
+}
+html::-webkit-scrollbar { display: none; }
+
+body {
+  margin: 0;
+  background: #05070f;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button { font: inherit; color: inherit; }
+
+/* --------------------------------------------------------------------------
+   Fixed atmosphere
+   -------------------------------------------------------------------------- */
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bot));
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(120% 75% at 50% -12%, rgba(255, 248, 226, 0.95), rgba(255, 232, 180, 0.28) 42%, transparent 72%);
+  opacity: var(--glow);
+}
+
+/* the Fire's light from below, beneath the Earth */
+.hellglow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(130% 70% at 50% 118%, rgba(255, 96, 30, 0.6), rgba(150, 24, 4, 0.28) 45%, transparent 75%);
+  opacity: var(--hell);
+}
+
+/* --------------------------------------------------------------------------
+   Level scaffold
+   -------------------------------------------------------------------------- */
+
+.level {
+  --s: -1;
+  --open: clamp(0, (var(--s) + 0.05) * 3.2, 1);
+  position: relative;
+  height: calc(var(--h) * 1vh);
+}
+
+.level__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  overflow: clip; /* never scrolled by focus or scrollIntoView */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 88px);
+  padding: clamp(28px, 7vh, 80px) var(--nav-space) clamp(28px, 7vh, 80px) var(--gutter);
+}
+
+.level__scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 0;
+}
+
+.level__content {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  /* gently fade as the level drops away beneath you */
+  opacity: clamp(0, (1.2 - var(--s)) * 4, 1);
+}
+
+/* Paused when far away — keeps the compositor quiet */
+.level:not(.is-near) * { animation-play-state: paused !important; }
+
+/* Reveal primitive: every .r has its own --d threshold */
+.r {
+  --k: clamp(0, (var(--s) - var(--d)) * 7, 1);
+  opacity: var(--k);
+  transform: translate3d(0, calc((1 - var(--k)) * -22px), 0);
+}
+
+/* --------------------------------------------------------------------------
+   Typography
+   -------------------------------------------------------------------------- */
+
+.kicker {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.level__ar {
+  margin: 0;
+  font-family: var(--arabic);
+  font-weight: 700;
+  font-size: clamp(40px, 5.6vw, 84px);
+  /* Amiri's marks reach ~1.8em; its gradient is clipped to this box, so the box
+     must be that tall — negative margins keep the layout as tight as before */
+  line-height: 1.9;
+  margin-block: -0.3em;
+  background: linear-gradient(180deg, #fffaf0 10%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-align: left;
+}
+
+.level__title {
+  margin: 4px 0 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(26px, 2.8vw, 42px);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.level__place {
+  margin: 8px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--faint);
+}
+
+.gate-note {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+/* gate dialogue (first heaven) */
+.dialogue {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--hair);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 18px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.dialogue li:last-child { grid-column: 1 / -1; color: var(--ink); }
+.dialogue li {
+  display: grid;
+  grid-template-columns: 1fr;
+  opacity: clamp(0, (var(--s) - var(--d) - var(--j) * 0.025) * 9, 1);
+}
+.dialogue span {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.dialogue .is-jibril span { color: var(--accent); }
+
+/* meeting */
+.meeting {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair);
+}
+.meeting__label {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.meeting__ar {
+  margin: 6px 0 0;
+  font-family: var(--arabic);
+  font-size: clamp(26px, 2.4vw, 34px);
+  line-height: 1.5;
+  color: var(--accent);
+  text-align: left;
+}
+.meeting__en {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 500;
+}
+.meeting__en span {
+  font-size: 0.62em;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--faint);
+}
+
+.greet {
+  margin: 14px 0 0;
+  padding: 2px 0 2px 16px;
+  border-inline-start: 1px solid var(--accent);
+}
+.greet__ar {
+  margin: 0;
+  font-family: var(--arabic);
+  font-size: 21px;
+  line-height: 1.7;
+  text-align: left;
+}
+.greet__en {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--muted);
+}
+
+/* narration points */
+.points {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.point p {
+  margin: 0 0 4px;
+  font-size: clamp(13.5px, 1.02vw, 15.5px);
+  line-height: 1.62;
+  color: var(--muted);
+}
+cite {
+  display: block;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.85;
+}
+.refs {
+  margin: 12px 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ayah */
+.ayah {
+  margin: 22px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair);
+}
+.ayah__ar {
+  margin: 0;
+  font-family: var(--arabic);
+  font-size: clamp(21px, 1.9vw, 28px);
+  line-height: 1.9;
+  color: var(--ink);
+  text-align: left;
+}
+.ayah figcaption { margin-top: 4px; }
+.ayah__en {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.45;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.note {
+  margin: 20px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 21px;
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Gate (heavens 1–7)
+   -------------------------------------------------------------------------- */
+
+.gate {
+  height: min(80svh, 100%);
+  width: auto;
+  max-width: 100%;
+  overflow: visible;
+}
+.gate__halo { opacity: calc(0.25 + var(--open) * 0.75); }
+.gate__light { opacity: calc(0.15 + var(--open) * 0.85); }
+.door { transform-box: fill-box; }
+.door--l { transform: translateX(calc(var(--open) * -100%)); }
+.door--r { transform: translateX(calc(var(--open) * 100%)); }
+.rosette__spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(calc(var(--s) * 120deg));
+}
+.rosette__spin--rev { transform: rotate(calc(var(--s) * -90deg)); }
+.rosette__num {
+  font-family: var(--arabic);
+  font-size: 22px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.gate__motes circle {
+  opacity: 0;
+  animation: mote 6s ease-in-out infinite;
+  animation-delay: calc(var(--k) * -0.43s);
+}
+@keyframes mote {
+  0% { transform: translateY(30px); opacity: 0; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(-70px); opacity: 0; }
+}
+
+.bayt { opacity: calc(var(--open)); }
+.bayt__orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 14s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --------------------------------------------------------------------------
+   Full-bleed scenes (Earth, Paradise, Pens, Throne)
+   -------------------------------------------------------------------------- */
+
+.level--full .level__pin {
+  /* symmetric gutters so text centres on the scene (rings, star, Kaaba) */
+  padding-left: var(--nav-space);
+  padding-right: var(--nav-space);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  justify-items: center;
+  text-align: center;
+}
+.level--full .level__scene {
+  position: absolute;
+  inset: 0;
+  height: auto;
+}
+.level--full .level__content {
+  max-width: 680px;
+  margin-top: 1vh;
+}
+.level--full .level__ar,
+.level--full .meeting__ar,
+.level--full .ayah__ar { text-align: center; }
+.level--full .level__content::before {
+  content: '';
+  position: absolute;
+  inset: -60px -90px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(4, 6, 16, 0.55), transparent);
+  pointer-events: none;
+}
+
+.scene-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* two-column text on long levels */
+@media (min-width: 900px) {
+  .level--wide .level__content {
+    max-width: 1080px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+    text-align: left;
+  }
+  .level--wide .level__content > * { grid-column: 1; }
+  .level--wide .level__content > .points {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+    align-self: center;
+    margin-top: 0;
+  }
+  .level--wide .level__ar,
+  .level--wide .ayah__ar { text-align: left; }
+}
+
+/* Makkah */
+.isra-arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - clamp(0, (var(--s) - 0.5) * 2.4, 1));
+}
+.isra-arc--in { stroke-dashoffset: calc(1 - clamp(0, (var(--s) + 0.35) * 2.6, 1)); }
+.kaaba { filter: drop-shadow(0 0 18px rgba(227, 184, 103, 0.18)); }
+
+/* Al-Aqsa */
+.miraj-beam {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(clamp(0, (var(--s) - 0.55) * 2.6, 1));
+  opacity: clamp(0, (var(--s) - 0.55) * 3, 1);
+}
+
+/* Paradise — entering through a golden arch into a garden of light */
+.level--jannah { --g: clamp(0, (var(--s) + 0.15) * 2.2, 1); }
+.level--jannah .level__content::before { display: none; }
+.jn-frame {
+  --enter: clamp(0, (var(--s) - 0.02) * 3.2, 1);
+  transform-box: view-box;
+  transform-origin: 600px 470px;
+  transform: scale(calc(1 + var(--enter) * 1.5));
+  opacity: calc(1 - clamp(0, (var(--s) - 0.26) * 5, 1));
+}
+.level--flow .jn-frame { --enter: clamp(0, (var(--s) - 0.35) * 2.5, 1); opacity: 1; }
+/* the painting: a slow camera push-in as you walk in */
+.jn-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: scale(calc(1.08 - var(--s) * 0.08));
+  transform-origin: 50% 62%;
+  will-change: transform;
+}
+.jn-base,
+.jn-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.jn-base { object-fit: cover; object-position: 50% 100%; }
+.jn-bloom { animation: breathe 7s ease-in-out infinite; }
+.jn-room {
+  animation: twinkle 3.8s ease-in-out infinite;
+  animation-delay: calc(var(--k) * -0.31s);
+}
+@keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.jn-shimmer path { opacity: 0.75; animation: flow-down 3.2s linear infinite; }
+.jn-shimmer path:nth-child(2n) { animation-duration: 3.8s; }
+@keyframes flow-down { to { stroke-dashoffset: -70; } }
+.jn-motes circle {
+  opacity: 0;
+  animation: mote-rise 11s ease-in-out infinite;
+  animation-delay: calc(var(--k) * -0.53s);
+}
+@keyframes mote-rise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  25% { opacity: 0.9; }
+  60% { transform: translate(14px, -120px); }
+  100% { transform: translate(-6px, -220px); opacity: 0; }
+}
+
+/* three acts while pinned: the promise → what he saw → the rivers */
+.level--phased .level__content {
+  display: grid;
+  max-width: 760px;
+  width: 100%;
+}
+.level--phased .phase {
+  grid-area: 1 / 1;
+  align-self: start;
+  opacity: calc(clamp(0, (var(--s) - var(--a)) * 9, 1) * clamp(0, (var(--b) - var(--s)) * 9, 1));
+}
+.hero-quote {
+  margin: 20px auto 0;
+  max-width: 620px;
+}
+.hero-quote p {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 36px);
+  line-height: 1.32;
+  color: #fff8e8;
+  text-shadow: 0 2px 24px rgba(26, 18, 56, 0.6);
+}
+.level--jannah .level__ar {
+  background: linear-gradient(180deg, #ffffff 0%, #ffe3a0 55%, #d9a441);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 4px 22px rgba(255, 214, 140, 0.35));
+}
+.lux-card,
+.level--jannah .phase--1,
+.level--jannah .phase--2 .points,
+.level--jannah .phase--3 {
+  padding: clamp(18px, 2.4vw, 28px) clamp(18px, 2.8vw, 32px);
+  border: 1px solid rgba(255, 227, 160, 0.38);
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(34, 22, 66, 0.82), rgba(20, 12, 40, 0.72));
+  box-shadow: 0 24px 70px rgba(10, 6, 24, 0.35), inset 0 1px 0 rgba(255, 240, 200, 0.18);
+  text-align: left;
+}
+.level--jannah .phase--1 { text-align: center; max-width: 720px; justify-self: center; }
+.level--jannah .phase--2 .points { margin-top: 0; }
+.level--jannah .phase--3 .ayah:first-of-type { margin-top: 18px; }
+.level--jannah .phase--3 .ayah__ar,
+.level--jannah .phase--3 .ayah { text-align: left; }
+
+.rivers-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.rv { display: grid; justify-items: start; gap: 2px; }
+.rv i {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  box-shadow: 0 0 14px currentColor;
+}
+.rv span { font-family: var(--serif); font-size: 19px; color: #fff8e8; }
+.rv small { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.rv--water { color: #8fd7f5; } .rv--water i { background: linear-gradient(90deg, #ffffff, #7fcff2); }
+.rv--milk { color: #fffaf0; }  .rv--milk i { background: linear-gradient(90deg, #ffffff, #efe7d8); }
+.rv--wine { color: #e0607f; }  .rv--wine i { background: linear-gradient(90deg, #ffd6e0, #b8325a); }
+.rv--honey { color: #f0b545; } .rv--honey i { background: linear-gradient(90deg, #fff0c4, #e0a12e); }
+
+/* Pens */
+.pen-strokes path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: write 7s ease-in-out infinite;
+  animation-delay: calc(var(--k) * -0.41s);
+}
+@keyframes write {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  12% { opacity: 0.85; }
+  55% { stroke-dashoffset: 0; opacity: 0.85; }
+  85%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Throne — beyond depiction: only light */
+.level--arsh {
+  --ink: #2b1f08;
+  --muted: rgba(43, 31, 8, 0.78);
+  --faint: rgba(43, 31, 8, 0.52);
+  --hair: rgba(43, 31, 8, 0.16);
+  color: var(--ink);
+}
+.level--arsh .level__pin { align-items: center; }
+.level--arsh .level__content::before {
+  background: radial-gradient(closest-side, rgba(255, 252, 244, 0.7), transparent);
+}
+.level--arsh .level__ar {
+  font-size: clamp(44px, 7vw, 110px);
+  background: linear-gradient(180deg, #c99a3a, #6e4d12);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.rays {
+  position: absolute;
+  inset: -50%;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(184, 138, 44, 0.11) 0deg 2.5deg, transparent 2.5deg 11.25deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0, transparent 42%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 0, transparent 42%);
+  animation: spin 160s linear infinite;
+}
+.arsh-rings, .arsh-star {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.arsh-rings { animation: spin 240s linear infinite reverse; }
+.arsh-star { opacity: 0.5; transform: rotate(calc(var(--s) * 45deg)); }
+
+/* --------------------------------------------------------------------------
+   Sidrat al-Muntaha
+   -------------------------------------------------------------------------- */
+
+.level--sidrah {
+  --g: clamp(0, (var(--s) + 0.25) * 2.4, 1);
+}
+.tree {
+  position: relative;
+  height: min(88svh, 100%);
+  width: auto;
+  max-width: 100%;
+}
+.tree__body {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scale(calc(0.55 + 0.45 * var(--g)));
+  opacity: calc(0.15 + 0.85 * var(--g));
+}
+.tree__leaves { opacity: clamp(0, (var(--s) - 0.02) * 3, 1); }
+.tree__fruits { opacity: clamp(0, (var(--s) - 0.12) * 3, 1); }
+.rivers, .river-labels { opacity: clamp(0, (var(--s) - 0.25) * 3, 1); }
+.river {
+  stroke-dasharray: 6 16;
+  animation: flow 2.4s linear infinite;
+}
+.river--hidden { stroke-dasharray: 3 12; animation-duration: 3.2s; }
+@keyframes flow { to { stroke-dashoffset: -44; } }
+.river-labels text {
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  fill: rgba(255, 240, 210, 0.75);
+}
+.river-labels .hidden-label { font-style: italic; font-size: 13px; fill: rgba(255, 240, 210, 0.5); }
+
+/* "covered by colours" — soft shifting aura (compositor-only) */
+.aura {
+  position: absolute;
+  inset: 4% 0 30%;
+  pointer-events: none;
+  opacity: clamp(0, (var(--s) - 0.15) * 2.5, 1);
+}
+.aura span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: aura 9s ease-in-out infinite;
+}
+.aura span:nth-child(1) { background: radial-gradient(closest-side, rgba(255, 214, 120, 0.55), transparent); }
+.aura span:nth-child(2) { background: radial-gradient(closest-side, rgba(150, 230, 210, 0.45), transparent); animation-delay: -3s; }
+.aura span:nth-child(3) { background: radial-gradient(closest-side, rgba(240, 160, 220, 0.45), transparent); animation-delay: -6s; }
+@keyframes aura {
+  0%, 100% { opacity: 0; transform: scale(0.9); }
+  33% { opacity: 1; transform: scale(1.05); }
+  66% { opacity: 0; transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Beneath the Earth — the warning of the Fire
+   -------------------------------------------------------------------------- */
+
+.level--hell {
+  --ink: #f6e4d8;
+  --muted: rgba(246, 228, 216, 0.76);
+  --faint: rgba(246, 228, 216, 0.48);
+  --hair: rgba(255, 140, 90, 0.18);
+}
+.level--hell .level__ar {
+  background: linear-gradient(180deg, #ffe2c4 5%, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.level--hell.level--full .level__content::before {
+  background: radial-gradient(closest-side, rgba(10, 2, 1, 0.65), transparent);
+}
+
+/* sealed gate: the doors barely part — fire glimpsed through the seam */
+.level--sealed .door--l { transform: translateX(calc(var(--open) * -9%)); }
+.level--sealed .door--r { transform: translateX(calc(var(--open) * 9%)); }
+.level--sealed .gate__light { opacity: calc(0.2 + var(--open) * 0.5); }
+.gate__fire {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 1.8s ease-in-out infinite alternate;
+}
+
+/* flames */
+.level--flames { --g: clamp(0, (var(--s) + 0.3) * 2.2, 1); }
+.flames {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: translateY(calc((1 - var(--g)) * 30%));
+}
+.flame-row {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 2.6s ease-in-out infinite alternate;
+}
+.flame-row--dark path { fill: url(#fl-dark); }
+.flame-row--dark { animation-duration: 3.4s; animation-delay: -1.1s; }
+.flame-row--a path { fill: url(#fl-a); }
+.flame-row--b path { fill: url(#fl-b); }
+.flame-row--c path { fill: url(#fl-c); }
+.flame-row--b { animation-duration: 1.9s; animation-delay: -0.7s; }
+.flame-row--c { animation-duration: 1.3s; animation-delay: -0.3s; }
+@keyframes flicker {
+  0% { transform: scaleY(0.9) skewX(-1.5deg); }
+  50% { transform: scaleY(1.06) skewX(1deg); }
+  100% { transform: scaleY(0.95) skewX(-0.5deg); }
+}
+
+/* depth */
+.level--abyss {
+  --dive: clamp(0, (var(--s) - 0.05) * 1.1, 1);
+}
+.abyss-rings,
+.abyss-core {
+  transform-box: view-box;
+  transform-origin: 600px 560px;
+}
+/* zoom in and in — the rings rush past and dissolve */
+.abyss-rings {
+  transform: scale(calc(1 + var(--dive) * var(--dive) * 5));
+  opacity: calc(1 - clamp(0, (var(--s) - 0.55) * 2.6, 1));
+}
+.abyss-core {
+  transform: scale(calc(1 + var(--dive) * 2.4));
+  opacity: calc(1 - clamp(0, (var(--s) - 0.7) * 3, 1));
+}
+/* the words of this level leave before the dissolve, so the next level is met clean */
+.level--abyss:not(.level--flow) .level__content { opacity: clamp(0, (0.6 - var(--s)) * 6, 1); }
+.level--abyss:not(.level--flow) .falling-stone { opacity: clamp(0, (0.5 - var(--s)) * 4, 1); }
+.falling-stone {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fall 5.5s cubic-bezier(0.5, 0, 0.9, 0.6) infinite;
+}
+@keyframes fall {
+  0% { transform: translateY(-200px) scale(1.4); opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 0.8; }
+  100% { transform: translateY(300px) scale(0.1); opacity: 0; }
+}
+
+/* scorched ground */
+.cracks path {
+  opacity: 0.25;
+  animation: smoulder 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--k) * -0.31s);
+}
+@keyframes smoulder { 50% { opacity: 0.9; } }
+
+/* Zaqqum */
+.level--zaqqum { --g: clamp(0, (var(--s) + 0.25) * 2.4, 1); }
+.level--zaqqum .level__scene { position: relative; }
+.tree__thorns { opacity: clamp(0, (var(--s) - 0.05) * 3, 1); }
+.zq-fruit { animation: smoulder 2.8s ease-in-out infinite; }
+.bubbles circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: bubble 2.6s ease-out infinite;
+  animation-delay: calc(var(--k) * -0.37s);
+}
+@keyframes bubble {
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  30% { opacity: 0.9; }
+  100% { transform: translateY(-40px) scale(1.3); opacity: 0; }
+}
+
+/* the lowest depth — and a beam of mercy from above */
+.mercy-beam {
+  opacity: clamp(0, (var(--s) - 0.2) * 2, 0.9);
+  animation: breathe 6s ease-in-out infinite;
+}
+@keyframes breathe { 50% { opacity: 0.55; } }
+.return-btn.ascend-btn {
+  border-color: #fff1d0;
+  background: #fff1d0;
+  color: #2a0c05;
+  box-shadow: 0 0 0 6px rgba(255, 241, 208, 0.12), 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+.return-btn.ascend-btn:hover { background: #ffffff; }
+
+/* --------------------------------------------------------------------------
+   Widgets
+   -------------------------------------------------------------------------- */
+
+/* Milk & wine */
+.choice {
+  display: flex;
+  gap: 14px;
+  margin-top: 22px;
+}
+.level--full:not(.level--wide) .choice { justify-content: center; }
+.vessel {
+  width: 116px;
+  padding: 12px 10px 10px;
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  text-align: center;
+  color: var(--faint);
+  transition: none;
+}
+.vessel svg { width: 44px; height: 52px; display: block; margin: 0 auto 6px; }
+.vessel span { display: block; font-family: var(--serif); font-size: 19px; color: var(--ink); }
+.vessel small { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+.vessel--wine { opacity: calc(1 - var(--k) * 0.5); }
+.vessel--milk {
+  border-color: color-mix(in srgb, var(--accent) calc(var(--k) * 70%), transparent);
+  box-shadow: 0 0 calc(var(--k) * 36px) rgba(255, 240, 200, calc(var(--k) * 0.35));
+  color: var(--accent);
+}
+
+/* 50 → 5 */
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 22px;
+}
+.counter__num {
+  min-width: 2ch;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(64px, 7vw, 104px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--accent);
+}
+.counter__meta { display: grid; gap: 6px; }
+.counter__label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.counter__pips { display: flex; gap: 5px; }
+.counter__pips i {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--hair);
+  transition: background 0.4s ease;
+}
+.counter__pips i.on { background: var(--accent); }
+.counter__sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--faint);
+}
+
+.return-wrap { margin-top: 26px; }
+.return-btn {
+  padding: 12px 22px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.return-btn {
+  border-color: #6e4d12;
+  background: #6e4d12;
+  color: #fffaf0;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(110, 77, 18, 0.25);
+}
+.return-btn:hover { background: #8a6418; border-color: #8a6418; }
+
+/* --------------------------------------------------------------------------
+   The Earth — the opening screen, pinned like every other level
+   -------------------------------------------------------------------------- */
+
+.intro {
+  --u: 0;
+  --ua: 0;
+  position: relative;
+  height: 200vh;
+}
+.intro__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  overflow: clip; /* never scrolled by focus or scrollIntoView */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  padding: clamp(60px, 10vh, 96px) var(--nav-space) clamp(22px, 5vh, 48px);
+  text-align: center;
+}
+.intro__horizon {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: -40vh;
+  height: 70vh;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(227, 184, 103, 0.35), rgba(227, 184, 103, 0.06) 60%, transparent);
+  transform: translateY(calc(var(--u) * 18vh));
+}
+.intro__content {
+  position: relative;
+  max-width: 760px;
+  opacity: calc(1 - clamp(0, (var(--ua) - 0.15) * 1.5, 1));
+  transform: translate3d(0, calc(var(--u) * -70px), 0) scale(calc(1 - var(--ua) * 0.05));
+}
+.intro__content > * { animation: intro-in 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.intro__content > :nth-child(2) { animation-delay: 0.15s; }
+.intro__content > :nth-child(3) { animation-delay: 0.3s; }
+@keyframes intro-in { from { opacity: 0; transform: translateY(16px); } }
+.intro__bismillah {
+  margin: 0 0 24px;
+  font-family: var(--arabic);
+  font-size: clamp(22px, 2.4vw, 30px);
+  color: var(--gold);
+}
+.intro__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(38px, 6vw, 88px);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+.intro__title span {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--arabic);
+  font-weight: 700;
+  font-size: 0.78em;
+  line-height: 1.9;
+  margin-block: -0.2em 0;
+  background: linear-gradient(180deg, #fffaf0, var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.intro__sub {
+  max-width: 540px;
+  margin: 20px auto 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(17px, 1.6vw, 22px);
+  line-height: 1.45;
+  color: var(--muted);
+}
+.intro__go {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.intro__go--up { color: var(--gold); opacity: calc(1 - clamp(0, var(--u) * -2, 1)); }
+.intro__go--down { color: rgba(255, 140, 90, 0.85); opacity: calc(1 - clamp(0, var(--u) * 2, 1)); }
+.intro__go--up:hover { color: #fff6dc; }
+.intro__go--down:hover { color: #ffb08a; }
+.intro__chev {
+  width: 14px;
+  height: 14px;
+  border-top: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  animation: rise 2.2s ease-in-out infinite;
+}
+.intro__chev--down { animation-name: sink; }
+@keyframes rise {
+  0% { transform: translateY(10px) rotate(45deg); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(-12px) rotate(45deg); opacity: 0; }
+}
+@keyframes sink {
+  0% { transform: translateY(-10px) rotate(225deg); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(12px) rotate(225deg); opacity: 0; }
+}
+
+/* the home screen's own sound switch (browsers need a tap before audio) */
+.intro__sound {
+  margin-top: 22px;
+  padding: 10px 20px;
+  border: 1px solid rgba(227, 184, 103, 0.55);
+  border-radius: 999px;
+  background: rgba(227, 184, 103, 0.08);
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.intro__sound:hover { background: rgba(227, 184, 103, 0.2); color: #fff6dc; }
+.intro__sound .sound-on { display: none; }
+.intro__sound[aria-pressed="true"] .sound-on { display: inline; }
+.intro__sound[aria-pressed="true"] .sound-off { display: none; }
+.intro__sound[aria-pressed="true"] { background: rgba(227, 184, 103, 0.18); }
+@media (max-height: 760px) { .intro__sound { margin-top: 12px; padding: 8px 16px; } }
+@media (max-height: 520px) { .intro__sound { margin-top: 6px; padding: 5px 14px; font-size: 10px; } }
+
+/* --------------------------------------------------------------------------
+   Passages — one line of narration between levels
+   -------------------------------------------------------------------------- */
+
+.passage {
+  --v: 0;
+  position: relative;
+  min-height: 72vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 0 var(--nav-space);
+  text-align: center;
+}
+.passage__thread {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(255, 240, 200, 0.4) 25%, transparent 42%, transparent 58%, rgba(255, 240, 200, 0.4) 75%, transparent);
+  opacity: calc(0.35 + var(--v) * 0.65);
+}
+.passage--down .passage__thread {
+  background: linear-gradient(180deg, transparent, rgba(255, 120, 60, 0.45) 25%, transparent 42%, transparent 58%, rgba(255, 120, 60, 0.45) 75%, transparent);
+}
+.passage__text {
+  max-width: 640px;
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(24px, 3.2vw, 42px);
+  line-height: 1.3;
+  opacity: var(--v);
+  transform: translate3d(0, calc((1 - var(--v)) * 18px), 0) scale(calc(0.97 + var(--v) * 0.03));
+}
+.passage--down .passage__text { color: #ffd9c4; }
+.passage__ref {
+  opacity: calc(var(--v) * 0.8);
+  color: var(--gold);
+}
+.passage--down .passage__ref { color: #ff9a6a; }
+
+/* --------------------------------------------------------------------------
+   Altimeter — every marker on one right-hand line
+   -------------------------------------------------------------------------- */
+
+.altimeter {
+  position: fixed;
+  z-index: 10;
+  right: clamp(14px, 2vw, 32px);
+  top: 50%;
+  height: min(76vh, 680px);
+  transform: translateY(-50%);
+  color: var(--ink);
+  transition: color 0.6s ease;
+}
+.altimeter__track {
+  position: absolute;
+  right: 3.5px;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: var(--hair);
+}
+.altimeter__fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: calc(var(--P) * 100%);
+  background: var(--nav-accent);
+  box-shadow: 0 0 8px var(--nav-accent);
+}
+.altimeter__list {
+  position: relative;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.altimeter__list li {
+  display: flex;
+  justify-content: flex-end;
+  line-height: 1;
+}
+.altimeter button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: 3px 0 3px 12px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.altimeter button i {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: transparent;
+  opacity: 0.5;
+  transition: transform 0.4s ease, background 0.4s ease, opacity 0.4s ease;
+}
+.altimeter__label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-align: right;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.altimeter button:hover .altimeter__label,
+.altimeter button:focus-visible .altimeter__label,
+.altimeter button[aria-current] .altimeter__label { opacity: 0.9; transform: none; }
+.altimeter button[aria-current] i {
+  opacity: 1;
+  background: var(--nav-accent);
+  border-color: var(--nav-accent);
+  transform: scale(1.35);
+  box-shadow: 0 0 10px var(--nav-accent);
+}
+.altimeter button:focus-visible { outline: none; }
+.altimeter button:focus-visible i { outline: 1px solid var(--nav-accent); outline-offset: 3px; }
+.altimeter .is-hell button { color: #ff9a6a; }
+/* the Earth: a diamond on the same line */
+.altimeter .is-earth button i { border-radius: 1px; transform: rotate(45deg); opacity: 0.9; }
+.altimeter .is-earth button[aria-current] i { transform: rotate(45deg) scale(1.35); }
+
+/* --------------------------------------------------------------------------
+   Top controls
+   -------------------------------------------------------------------------- */
+
+.controls {
+  position: fixed;
+  z-index: 11;
+  top: clamp(12px, 2.4vh, 26px);
+  right: clamp(12px, 2vw, 32px);
+  display: flex;
+  gap: 8px;
+  color: var(--ink);
+  transition: color 0.6s ease;
+}
+.controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(5, 7, 15, 0.35);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+.controls button:hover { opacity: 1; }
+.sound-btn svg { width: 16px; height: 16px; flex: none; }
+.sound-btn .sound-on { display: none; }
+.sound-btn[aria-pressed="true"] .sound-on { display: inline; }
+.sound-btn[aria-pressed="true"] .sound-off { display: none; }
+.sound-btn[aria-pressed="true"] { background: rgba(227, 184, 103, 0.2); opacity: 1; }
+.is-light .altimeter, .is-light .controls { color: #5a4210; }
+.is-light .controls button { background: rgba(255, 250, 240, 0.55); }
+
+.sources {
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(84vh, 760px);
+  padding: 0;
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  background: #0b0e1d;
+  color: var(--ink);
+}
+.sources::backdrop { background: rgba(3, 4, 10, 0.7); }
+.sources__inner { padding: clamp(22px, 4vw, 40px); }
+.sources h2 {
+  margin: 0 0 10px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 34px;
+}
+.sources__lede, .sources__note {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.sources__list { margin: 0 0 22px; display: grid; gap: 14px; }
+.sources__list dt {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.sources__list dd { margin: 3px 0 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.sources__note { font-style: italic; font-family: var(--serif); font-size: 16px; }
+.sources__close {
+  padding: 10px 20px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: none;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Stacked layout ("flow")
+   Phones, tablets in portrait, short landscape screens — and any level whose
+   text would not fit a pinned screen. Picture and words come one after the
+   other, full width, with no overlap, and reveal as they enter the view.
+   -------------------------------------------------------------------------- */
+
+.level--flow { height: auto; }
+.level--flow .level__pin {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(28px, 6vw, 48px);
+  padding: clamp(64px, 12vw, 104px) var(--nav-space) clamp(48px, 9vw, 88px) var(--gutter);
+  overflow: clip;
+  text-align: left;
+}
+.level--flow .level__content {
+  order: 1;
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  opacity: 1;
+}
+.level--flow .level__scene {
+  order: 2;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  display: block;
+}
+/* Beneath the Earth you arrive from above, so the picture comes first */
+.level--flow.level--hell .level__scene { order: 0; }
+.level--flow .gate {
+  display: block;
+  width: min(74%, 340px);
+  height: auto;
+  margin: 0 auto;
+}
+.level--flow .tree {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  margin: 0 auto;
+}
+.level--flow .aura { inset: 0 0 25%; }
+.level--flow .river-labels { display: none; }
+
+/* pictures run edge to edge, uncropped where it matters */
+.level--flow.level--picture .level__scene {
+  width: auto;
+  margin-left: calc(-1 * var(--gutter));
+  margin-right: calc(-1 * var(--nav-space));
+  aspect-ratio: 4 / 3;
+  max-height: 72svh;
+  overflow: hidden;
+}
+.level--flow.level--jannah .level__scene { aspect-ratio: 1 / 1; max-height: 92svh; }
+.level--flow.level--picture .scene-svg { position: absolute; inset: 0; }
+
+/* atmosphere stays behind the words */
+.level--flow.level--ambient .level__scene {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+.level--flow:not(.level--ambient) .level__content::before { display: none; }
+.level--flow .pen-strokes { opacity: 0.45; }
+
+/* text alignment for reading */
+.level--flow .level__ar,
+.level--flow .meeting__ar,
+.level--flow .ayah__ar { text-align: left; }
+.level--flow .choice { justify-content: flex-start; }
+.level--flow.level--wide .level__content { display: block; }
+.level--flow.level--wide .level__content > .points { margin-top: 20px; }
+
+/* reveal on entering the view */
+.level--flow .r {
+  --k: 0;
+  transform: translate3d(0, calc((1 - var(--k)) * 24px), 0);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.level--flow .r.is-in { --k: 1; }
+.level--flow .dialogue li { opacity: 1; }
+
+/* Paradise, stacked: the three acts follow one another */
+.level--flow.level--phased .level__content { display: block; max-width: 680px; }
+.level--flow .phase { opacity: 1; }
+.level--flow .phase + .phase { margin-top: 22px; }
+.level--flow.level--jannah .level__content { text-align: left; }
+.level--flow .hero-quote { margin-left: 0; }
+.level--flow.level--jannah .phase--1 { text-align: left; }
+.level--flow.level--jannah .phase--1 .level__ar { text-align: left; }
+
+/* --------------------------------------------------------------------------
+   Phones & tablets
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 899px) {
+  :root { --nav-space: 34px; --gutter: 20px; }
+
+  .kicker { margin-bottom: 10px; font-size: 10.5px; letter-spacing: 0.24em; }
+  .level__ar { font-size: clamp(36px, 11vw, 56px); }
+  .level__title { font-size: clamp(25px, 7vw, 32px); }
+  .level__place { font-size: 17px; }
+  .meeting { margin-top: 18px; padding-top: 14px; }
+  .meeting__ar { font-size: 27px; }
+  .meeting__en { font-size: 23px; }
+  .greet__ar { font-size: 20px; }
+  .greet__en { font-size: 17px; }
+  .points { margin-top: 18px; gap: 14px; }
+  .point p { font-size: 15.5px; line-height: 1.62; }
+  cite, .refs { font-size: 10px; }
+  .ayah { margin-top: 20px; padding-top: 14px; }
+  .ayah__ar { font-size: 22px; line-height: 1.85; }
+  .ayah__en { font-size: 17px; }
+  .dialogue { font-size: 14px; gap: 8px 14px; }
+  .vessel { width: 104px; }
+  .note { font-size: 20px; }
+  .hero-quote p { font-size: clamp(21px, 6vw, 28px); }
+  .rivers-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+  .passage { min-height: 56svh; }
+  .passage__text { font-size: clamp(22px, 6.4vw, 32px); }
+
+  .intro { height: 170vh; }
+  .intro__title { font-size: clamp(34px, 9.6vw, 60px); }
+  .intro__go { font-size: 10px; letter-spacing: 0.18em; padding: 8px 6px; }
+
+  .altimeter { right: 10px; height: min(70vh, 560px); }
+  .altimeter__label { display: none; }
+  .altimeter button { padding: 2px 0 2px 6px; }
+  .altimeter button i { width: 7px; height: 7px; }
+  .altimeter__track { right: 3px; }
+
+  .controls { right: 10px; top: 10px; }
+  .controls button { height: 32px; padding: 0 12px; font-size: 10px; letter-spacing: 0.16em; }
+  .sound-btn .sound-label { display: none; }
+}
+
+/* Tablets in portrait: more air, larger picture */
+@media (min-width: 600px) and (max-width: 899px) {
+  :root { --nav-space: 56px; --gutter: 48px; }
+  .level--flow .level__content { max-width: 600px; }
+  .level--flow .gate { width: min(60%, 360px); }
+  .point p { font-size: 16.5px; }
+  .ayah__ar { font-size: 25px; }
+  .level__ar { font-size: 60px; }
+  .altimeter { right: 18px; }
+}
+
+/* Short screens (small phones, laptops at 720px, phones in landscape):
+   tighten the Earth screen so title and both directions always fit */
+@media (max-height: 760px) {
+  .intro__pin { padding-top: 54px; padding-bottom: 10px; }
+  .intro__bismillah { margin-bottom: 10px; font-size: 20px; }
+  .intro__title { font-size: clamp(32px, 8.5vh, 64px); }
+  .intro__sub { margin-top: 12px; font-size: 16px; line-height: 1.4; }
+  .intro__go { gap: 8px; padding: 6px 10px; }
+}
+@media (max-height: 520px) {
+  .intro__pin { padding-top: 48px; padding-bottom: 4px; }
+  .intro__bismillah { margin-bottom: 4px; font-size: 17px; }
+  .intro__title { font-size: 30px; }
+  .intro__title span { margin-bottom: 0; }
+  .intro__sub { max-width: 620px; margin-top: 8px; font-size: 14px; }
+  .intro__go { gap: 4px; padding: 4px 10px; }
+  .intro__chev { width: 10px; height: 10px; }
+}
+
+/* Very small phones */
+@media (max-width: 359px) {
+  :root { --nav-space: 28px; --gutter: 16px; }
+  .dialogue { grid-template-columns: 1fr; }
+  .choice { flex-wrap: wrap; }
+  .controls button { padding: 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .r { transform: none; }
+}
