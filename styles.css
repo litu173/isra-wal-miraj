@@ -114,7 +114,8 @@ button { font: inherit; color: inherit; }
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(24px, 5vw, 88px);
-  padding: clamp(28px, 7vh, 80px) var(--nav-space) clamp(28px, 7vh, 80px) var(--gutter);
+  /* the top always clears the fixed brand and controls */
+  padding: max(clamp(28px, 7vh, 80px), 76px) var(--nav-space) clamp(28px, 7vh, 80px) var(--gutter);
 }
 
 .level__scene {
@@ -1545,3 +1546,40 @@ html[dir="rtl"] :is(.level--flow .level__pin, .lux-card, .level--jannah .phase--
 html[dir="rtl"] .level--full:not(.level--flow):not(.level--wide) :is(.level__ar, .ayah__ar, .meeting__ar) { text-align: center; }
 html[dir="rtl"] .level--jannah:not(.level--flow) .phase--1 { text-align: center; }
 html[dir="rtl"] .rv { justify-items: start; }
+
+/* --------------------------------------------------------------------------
+   Brand
+   -------------------------------------------------------------------------- */
+
+.brand {
+  position: fixed;
+  z-index: 11;
+  top: clamp(12px, 2.4vh, 26px);
+  left: clamp(12px, 2vw, 32px);
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 4px 16px 4px 4px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: rgba(5, 7, 15, 0.35);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.6s ease;
+}
+.brand:hover { background: rgba(5, 7, 15, 0.55); }
+.brand:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
+.brand__mark { width: 34px; height: 34px; border-radius: 9px; flex: none; }
+.brand__text { display: grid; line-height: 1.15; }
+.brand__ar { font-family: var(--arabic); font-size: 13px; color: var(--gold); text-align: left; }
+.brand__name { font-family: var(--serif); font-size: 15px; font-weight: 500; white-space: nowrap; }
+html[lang="ar"] .brand__ar { display: none; }
+html[lang="ar"] .brand__name { font-family: var(--arabic); }
+.is-light .brand { background: rgba(255, 250, 240, 0.6); color: #5a4210; }
+@media (max-width: 899px) {
+  .brand { top: 10px; left: 10px; height: 36px; padding: 2px; gap: 0; }
+  .brand__mark { width: 30px; height: 30px; border-radius: 8px; }
+  .brand__text { display: none; }
+}

@@ -1228,6 +1228,7 @@ window.I18N.ready.then(() => {
   }
   navButtons.forEach((b, i) => b.addEventListener('click', () => goToLevel(i)));
   earthButton.addEventListener('click', () => scrollToY(earthY));
+  document.querySelector('.brand')?.addEventListener('click', (e) => { e.preventDefault(); scrollToY(earthY); });
   main.querySelector('.intro__go--up').addEventListener('click', () => goToLevel(H));
   main.querySelector('.intro__go--down').addEventListener('click', () => goToLevel(H - 1));
   main.querySelectorAll('.return-btn').forEach((b) => b.addEventListener('click', () => scrollToY(earthY)));

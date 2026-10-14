@@ -28,6 +28,20 @@ Then open http://localhost:5173. Opening `index.html` straight from disk also wo
 | `sound.js` | Synthesised soundscape: the `MIX` table sets each layer's loudness per level. |
 | `tests/layout-audit.js` | Layout audit (see below). |
 
+## Logo and icons
+
+The mark is a pointed arch (the gate of the heavens) with a beam of light rising from the Earth to an eight-pointed star.
+
+| File | Purpose |
+| --- | --- |
+| `assets/logo-mark.svg` | The logo; it also serves as the site's brand mark |
+| `favicon.svg` | Browser tab icon |
+| `assets/favicon-32.png` | PNG fallback for the tab icon |
+| `assets/apple-touch-icon.png` | iPhone and iPad home-screen icon |
+| `assets/icon-192.png`, `assets/icon-512.png` | Android and installed-app icons (`site.webmanifest`) |
+| `assets/og-image.jpg` | 1200×630 preview shown when the link is shared |
+| `assets/og-image.source.svg` | Editable source for the share preview |
+
 ## Languages
 
 The page is available in 12 languages:

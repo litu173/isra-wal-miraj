@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Al-Isra wal-Mi‘raj</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c1444"/><stop offset="1" stop-color="#070a1c"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3cc"/><stop offset="1" stop-color="#d6a03e"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffe7a8" stop-opacity="0"/><stop offset=".55" stop-color="#fff3d6" stop-opacity=".9"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+    <radialGradient id="glow" cx="32" cy="21" r="20" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffe7a8" stop-opacity=".6"/><stop offset="1" stop-color="#ffe7a8" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <circle cx="32" cy="21" r="20" fill="url(#glow)"/>
+  <path d="M30.6 52 31.6 25h.8l1 27Z" fill="url(#beam)"/>
+  <path d="M15.5 54V32C15.5 22 22 14.5 32 9.5 42 14.5 48.5 22 48.5 32V54" fill="none" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32.00 13.80L33.30 17.86L37.09 15.91L35.14 19.70L39.20 21.00L35.14 22.30L37.09 26.09L33.30 24.14L32.00 28.20L30.70 24.14L26.91 26.09L28.86 22.30L24.80 21.00L28.86 19.70L26.91 15.91L30.70 17.86Z" fill="url(#gold)"/>
+  <path d="M11 54.5H53" stroke="#dcab4e" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

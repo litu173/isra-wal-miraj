@@ -91,6 +91,13 @@ window.audit = async () => {
       // the visible phase of Paradise
       checkText(el, id);
       checkArabic(el, id);
+      for (const fixed of document.querySelectorAll('.brand, .controls')) {
+        const fr = R(fixed);
+        for (const t of el.querySelectorAll('.level__content :is(p, h2, h3, li, figure, blockquote)')) {
+          if (!t.offsetWidth || getComputedStyle(t).opacity < 0.05) continue;
+          if (hit(R(t), fr)) { issues.push(`${id}: text under ${fixed.className}`); break; }
+        }
+      }
     } else {
       // walk through the stacked level a screen at a time
       for (let y = top - H * 0.2; y < top + h; y += H * 0.9) {
