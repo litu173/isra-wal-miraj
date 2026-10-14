@@ -1352,7 +1352,11 @@
     starAlpha = 1 - clamp((fa - 10.6) / 1.2, 0, 1);
 
     const onEarth = Math.abs(c - earthCenter) < Math.max(vh * 0.5, span);
-    const idx = onEarth ? 'earth' : Math.round(f);
+    // Between the Earth and the first level beneath it, f blends toward Makkah's
+    // index only so the sky can share its night; the journey itself is at the
+    // Earth here — Makkah is reached only by going up.
+    const belowEarth = H && c > earthCenter && f > H - 1;
+    const idx = onEarth ? 'earth' : belowEarth ? (f > H - 0.5 ? 'earth' : H - 1) : Math.round(f);
     if (idx !== activeIdx) {
       (activeIdx === 'earth' ? earthButton : navButtons[activeIdx])?.removeAttribute('aria-current');
       (idx === 'earth' ? earthButton : navButtons[idx])?.setAttribute('aria-current', 'step');
@@ -1363,7 +1367,9 @@
     }
 
     // Soundscape follows the same position
-    window.SoundScape?.setPosition(onEarth ? 'earth' : DATA[i0].id, onEarth ? 'earth' : DATA[i1].id, t);
+    const soundA = onEarth ? 'earth' : DATA[i0].id;
+    const soundB = onEarth || belowEarth ? 'earth' : DATA[i1].id;
+    window.SoundScape?.setPosition(soundA, soundB, t);
   }
 
   const smooth = (t) => t * t * (3 - 2 * t);
