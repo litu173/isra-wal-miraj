@@ -21,9 +21,11 @@
   --gold: #e3b867;
 
   /* type */
-  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --serif-fallback: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --sans-fallback: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: var(--serif-fallback);
   --arabic: 'Amiri', 'Geeza Pro', 'Traditional Arabic', serif;
-  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sans: var(--sans-fallback);
 
   /* layout */
   --nav-space: clamp(150px, 16vw, 260px);
@@ -1460,3 +1462,86 @@ cite {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .r { transform: none; }
 }
+
+/* --------------------------------------------------------------------------
+   Languages
+   -------------------------------------------------------------------------- */
+
+.lang { position: relative; }
+.lang-btn svg { width: 15px; height: 15px; flex: none; }
+.lang-btn span { letter-spacing: 0.04em; text-transform: none; font-size: 12px; }
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  min-width: 190px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  background: #0b0e1d;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+.lang-menu button {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  text-align: start;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.85;
+  color: #f4ecd8;
+}
+.lang-menu button:hover,
+.lang-menu button:focus-visible { background: rgba(227, 184, 103, 0.14); opacity: 1; outline: none; }
+.lang-menu button[aria-selected="true"] { color: var(--gold); opacity: 1; }
+.lang-menu button[aria-selected="true"]::after { content: ' ✓'; }
+.sources__translation {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(227, 184, 103, 0.1);
+  color: var(--gold);
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 899px) {
+  .lang-btn span { display: none; }
+  .lang-btn { padding: 0 10px; }
+}
+
+/* Scripts that must not be letter-spaced, upper-cased or slanted */
+html:is([lang="ar"], [lang="ur"], [lang="bn"], [lang="hi"], [lang="zh"]) :is(.kicker, .meeting__label, cite, .refs, .dialogue span, .counter__label, .counter__sub, .rv small, .vessel small, .intro__go, .intro__sound, .return-btn, .controls button, .altimeter__label, .passage__ref, .sources__list dt) {
+  letter-spacing: 0;
+  text-transform: none;
+}
+html:is([lang="ar"], [lang="ur"], [lang="bn"], [lang="hi"], [lang="zh"]) :is(.level__place, .greet__en, .ayah__en, .note, .intro__sub, .passage__text, .hero-quote p, .counter__sub, .sources__note, .meeting__en span) {
+  font-style: normal;
+}
+html:is([lang="ar"], [lang="ur"], [lang="bn"], [lang="hi"], [lang="zh"]) :is(.kicker, cite, .refs) { font-size: 12.5px; }
+/* Nastaliq is tall: give Urdu room to breathe */
+html[lang="ur"] body { line-height: 2; }
+html[lang="ur"] :is(.point p, .ayah__en, .passage__text, .hero-quote p, .intro__sub, .greet__en, .level__title, .meeting__en) { line-height: 2.1; }
+html[lang="ur"] .level__title { font-size: clamp(22px, 2.3vw, 34px); }
+html[lang="ur"] .passage__text { font-size: clamp(20px, 2.6vw, 34px); }
+
+/* Right-to-left (Arabic, Urdu) */
+html[dir="rtl"] .altimeter,
+html[dir="rtl"] .controls { direction: ltr; }
+html[dir="rtl"] .lang-menu { direction: rtl; }
+html[dir="rtl"] :is(.level__ar, .meeting__ar, .greet__ar, .ayah__ar),
+html[dir="rtl"] .level--flow :is(.level__ar, .meeting__ar, .ayah__ar),
+html[dir="rtl"] .level--wide :is(.level__ar, .ayah__ar) { text-align: right; }
+html[dir="rtl"] :is(.level--flow .level__pin, .lux-card, .level--jannah .phase--2 .points, .level--jannah .phase--3, .level--flow.level--jannah .level__content, .level--flow.level--jannah .phase--1, .level--flow.level--jannah .phase--1 .level__ar) { text-align: right; }
+html[dir="rtl"] .level--full:not(.level--flow):not(.level--wide) :is(.level__ar, .ayah__ar, .meeting__ar) { text-align: center; }
+html[dir="rtl"] .level--jannah:not(.level--flow) .phase--1 { text-align: center; }
+html[dir="rtl"] .rv { justify-items: start; }

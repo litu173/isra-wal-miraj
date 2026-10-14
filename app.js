@@ -11,7 +11,7 @@
  *    and all reveals in styles.css are pure functions of --s. Beneath the
  *    Earth the direction is mirrored (0 = just arrived from above).
  */
-(() => {
+window.I18N.ready.then(() => {
   'use strict';
 
   const ASCENT = window.JOURNEY;
@@ -20,6 +20,8 @@
   // One list, deepest first: DATA[0] = lowest depth … DATA[H] = Makkah … last = the Throne
   const DATA = [...DESCENT].reverse().map((d) => ({ ...d, hell: true })).concat(ASCENT);
   const SOURCES = window.SOURCES || [];
+  const { ui, num } = window.I18N;
+  localize(DATA);
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const CONFIG = {
@@ -35,6 +37,25 @@
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   const lerp = (a, b, t) => a + (b - a) * t;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+  /** Swap English content for the chosen language (missing keys stay English). */
+  function localize(list) {
+    const t = window.I18N.t;
+    for (const d of list) {
+      const p = d.id;
+      for (const k of ['short', 'kicker', 'title', 'place', 'gateNote', 'note']) if (d[k]) d[k] = t(`${p}.${k}`, d[k]);
+      if (d.passage) d.passage = { ...d.passage, text: t(`${p}.passage`, d.passage.text) };
+      if (d.meeting) d.meeting = { ...d.meeting, en: t(`${p}.meeting`, d.meeting.en), plural: d.meeting.en.includes('&') };
+      if (d.greeting) d.greeting = { ...d.greeting, en: t(`${p}.greeting`, d.greeting.en) };
+      if (d.quote) d.quote = { ...d.quote, en: t(`${p}.quote`, d.quote.en) };
+      if (d.points) d.points = d.points.map((x, i) => ({ ...x, text: t(`${p}.points.${i}`, x.text) }));
+      if (d.dialogue) d.dialogue = d.dialogue.map(([who, line], i) => [who, t(`${p}.dialogue.${i}`, line)]);
+      if (d.ayah) d.ayah = { ...d.ayah, en: t(`${p}.ayah`, d.ayah.en) };
+      if (d.ayah2) d.ayah2 = { ...d.ayah2, en: t(`${p}.ayah2`, d.ayah2.en) };
+      if (d.rivers) d.rivers = d.rivers.map(([key, label, note], i) => [key, t(`${p}.rivers.${i}`, label), t(`${p}.rivers.${i}.note`, note)]);
+    }
+    SOURCES.forEach((x, i) => { x[1] = t(`sources.${i}`, x[1]); });
+  }
 
   /* ------------------------------------------------------------------ */
   /*  Geometry helpers                                                   */
@@ -218,9 +239,9 @@
           <path class="river" d="M408 764C470 800 580 812 710 900" stroke="#bfe6ff" stroke-width="4"/>
         </g>
         <g class="river-labels">
-          <text x="150" y="832" text-anchor="middle">النيل · Nile</text>
-          <text x="650" y="832" text-anchor="middle">الفرات · Euphrates</text>
-          <text x="190" y="520" text-anchor="middle" class="hidden-label">rivers of Paradise</text>
+          <text x="150" y="832" text-anchor="middle">النيل · ${esc(ui('nile'))}</text>
+          <text x="650" y="832" text-anchor="middle">الفرات · ${esc(ui('euphrates'))}</text>
+          <text x="190" y="520" text-anchor="middle" class="hidden-label">${esc(ui('paradiseRivers'))}</text>
         </g>
         <g class="tree__body">
           <g class="tree__branches" fill="none" stroke="url(#sd-bark)" stroke-linecap="round">${branches}</g>
@@ -876,23 +897,23 @@
     }
 
     if (d.dialogue) {
-      head.push(`<ol ${rv('dialogue')} aria-label="At the gate">${d.dialogue
-        .map(([who, line], k) => `<li style="--j:${k}" class="${who === 'Jibril' ? 'is-jibril' : ''}"><span>${esc(who)}</span>${esc(line)}</li>`)
+      head.push(`<ol ${rv('dialogue')} aria-label="${esc(ui('atGate'))}">${d.dialogue
+        .map(([who, line], k) => `<li style="--j:${k}" class="${who === 'Jibril' ? 'is-jibril' : ''}"><span>${esc(ui(who === 'Jibril' ? 'jibril' : 'gatekeeper'))}</span>${esc(line)}</li>`)
         .join('')}</ol>`);
     } else if (d.gateNote) {
       head.push(`<p ${rv('gate-note')}>${esc(d.gateNote)}</p>`);
     }
     if (d.meeting) {
       head.push(`<div ${rv('meeting', 0.06)}>
-        <span class="meeting__label">Met in this heaven</span>
+        <span class="meeting__label">${esc(ui('metHere'))}</span>
         <p class="meeting__ar" lang="ar" dir="rtl">${esc(d.meeting.ar)}</p>
-        <p class="meeting__en">${esc(d.meeting.en)} <span>(peace be upon ${d.meeting.en.includes('&') ? 'them' : 'him'})</span></p>
+        ${d.meeting.en ? `<p class="meeting__en">${esc(d.meeting.en)} <span>(${esc(ui(d.meeting.plural ? 'pbut' : 'pbuh'))})</span></p>` : ''}
       </div>`);
     }
     if (d.greeting) {
       head.push(`<blockquote ${rv('greet')}>
         <p class="greet__ar" lang="ar" dir="rtl">${esc(d.greeting.ar)}</p>
-        <p class="greet__en">“${esc(d.greeting.en)}”</p>
+        ${d.greeting.en ? `<p class="greet__en">“${esc(d.greeting.en)}”</p>` : ''}
       </blockquote>`);
     }
 
@@ -915,12 +936,12 @@
     for (const a of [d.ayah, d.ayah2].filter(Boolean)) {
       tail.push(`<figure ${rv('ayah', 0.06)}>
         <p class="ayah__ar" lang="ar" dir="rtl">${esc(a.ar)}</p>
-        <figcaption><span class="ayah__en">${esc(a.en)}</span><cite>${esc(a.ref)}</cite></figcaption>
+        <figcaption>${a.en ? `<span class="ayah__en">${esc(a.en)}</span>` : ''}<cite>${esc(a.ref)}</cite></figcaption>
       </figure>`);
     }
     if (d.note) tail.push(`<p ${rv('note', 0.04)}>${esc(d.note)}</p>`);
-    if (d.widget === 'ascend') tail.push(`<div ${rv('return-wrap', 0.04)}><button class="return-btn ascend-btn" type="button">Rise back to the Earth ↑</button></div>`);
-    if (d.widget === 'return') tail.push(`<div ${rv('return-wrap', 0.04)}><button class="return-btn" type="button">Descend to Earth ↓</button></div>`);
+    if (d.widget === 'ascend') tail.push(`<div ${rv('return-wrap', 0.04)}><button class="return-btn ascend-btn" type="button">${esc(ui('riseEarth'))}</button></div>`);
+    if (d.widget === 'return') tail.push(`<div ${rv('return-wrap', 0.04)}><button class="return-btn" type="button">${esc(ui('descendEarth'))}</button></div>`);
 
     const content = d.phased
       ? `<div class="phase phase--1" style="--a:.02;--b:.36">${head.join('')}</div>
@@ -972,16 +993,16 @@
         </svg>
         <span>${label}</span><small>${sub}</small>
       </div>`;
-    return cup('#7a1830', 'vessel--wine', 'Wine', 'declined') + cup('#fffaf0', 'vessel--milk', 'Milk', 'al-fitrah ✓');
+    return cup('#7a1830', 'vessel--wine', esc(ui('wine')), esc(ui('declined'))) + cup('#fffaf0', 'vessel--milk', esc(ui('milk')), esc(ui('fitrah')));
   }
 
   function counterWidget() {
     return `
-      <div class="counter__num" data-counter aria-live="off">50</div>
+      <div class="counter__num" data-counter aria-live="off">${num(50)}</div>
       <div class="counter__meta">
-        <span class="counter__label">daily prayers</span>
+        <span class="counter__label">${esc(ui('dailyPrayers'))}</span>
         <div class="counter__pips">${'<i></i>'.repeat(9)}</div>
-        <span class="counter__sub" data-counter-sub>enjoined at first</span>
+        <span class="counter__sub" data-counter-sub>${esc(ui('enjoined'))}</span>
       </div>`;
   }
 
@@ -992,18 +1013,18 @@
         <div class="intro__horizon" aria-hidden="true"></div>
         <button class="intro__go intro__go--up" type="button">
           <span class="intro__chev" aria-hidden="true"></span>
-          <span>Scroll up · ascend</span>
+          <span>${esc(ui('scrollUp'))}</span>
         </button>
         <div class="intro__content">
           <p class="intro__bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-          <h1 class="intro__title"><span lang="ar" dir="rtl">الإسراء والمعراج</span>Al‑Isra’ wal‑Mi‘raj</h1>
-          <p class="intro__sub">The Night Journey and the Ascension — from the earth of Makkah up to Sidrat al-Muntaha, and beneath it the warning of the Fire, as described in the Qur’an and authentic hadith.</p>
+          <h1 class="intro__title"><span lang="ar" dir="rtl">الإسراء والمعراج</span>${esc(ui('title'))}</h1>
+          <p class="intro__sub">${esc(ui('subtitle'))}</p>
           <button class="sound-toggle intro__sound" type="button" aria-pressed="false">
-            <span class="sound-off">Begin with sound</span><span class="sound-on">Sound on</span>
+            <span class="sound-off">${esc(ui('beginSound'))}</span><span class="sound-on">${esc(ui('soundOn'))}</span>
           </button>
         </div>
         <button class="intro__go intro__go--down" type="button">
-          <span>Scroll down · the warning of the Fire</span>
+          <span>${esc(ui('scrollDown'))}</span>
           <span class="intro__chev intro__chev--down" aria-hidden="true"></span>
         </button>
       </div>
@@ -1023,7 +1044,7 @@
   const navList = document.querySelector('.altimeter__list');
   const navItem = (key, label, cls = '') => `<li class="${cls}"><button type="button" data-go="${key}" aria-label="${esc(label)}"><span class="altimeter__label">${esc(label)}</span><i></i></button></li>`;
   const navHtml = DATA.map((d, i) => navItem(i, d.short || d.title, d.hell ? 'is-hell' : ''));
-  navHtml.splice(H, 0, navItem('earth', 'Earth', 'is-earth'));
+  navHtml.splice(H, 0, navItem('earth', ui('earth'), 'is-earth'));
   navList.innerHTML = navHtml.reverse().join('');
   const navButtons = []; // index = data index
   navList.querySelectorAll('button').forEach((b) => { if (b.dataset.go !== 'earth') navButtons[+b.dataset.go] = b; });
@@ -1375,9 +1396,9 @@
   const smooth = (t) => t * t * (3 - 2 * t);
 
   function setCounter(l, steps) {
-    l.counter.textContent = 50 - steps * 5;
+    l.counter.textContent = num(50 - steps * 5);
     l.pips.forEach((p, k) => p.classList.toggle('on', k < steps));
-    l.counterSub.textContent = steps === 0 ? 'enjoined at first' : steps < 9 ? `after ${steps} return${steps > 1 ? 's' : ''}, at Musa’s urging` : 'five in deed — fifty in reward';
+    l.counterSub.textContent = steps === 0 ? ui('enjoined') : steps < 9 ? (steps === 1 ? ui('return1') : ui('returns', { n: num(steps) })) : ui('fiveFifty');
   }
   function updateCounter(l, s) {
     setCounter(l, clamp(Math.floor((s - 0.3) / 0.045), 0, 9));
@@ -1426,6 +1447,13 @@
     const hash = location.hash.slice(1);
     const hashed = hash && levels.find((l) => l.el.id === hash);
     current = target = hashed ? clamp(levelY(hashed, CONFIG.navTargetS), 0, maxScroll) : earthY;
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem('miraj-anchor') || 'null'); sessionStorage.removeItem('miraj-anchor'); } catch (_) { /* no storage */ }
+    if (saved) {
+      const l = saved.id && levels.find((x) => x.el.id === saved.id);
+      const c = l ? l.top + saved.t * l.h : introTop + saved.t * introH;
+      current = target = clamp(c - vh / 2, 0, maxScroll);
+    }
     window.scrollTo(0, current);
     lastY = current;
   }
@@ -1436,6 +1464,8 @@
     const l = levels.find((x) => c >= x.top && c < x.top + x.h);
     return l ? { l, t: (c - l.top) / l.h } : { earth: true, t: (c - introTop) / introH };
   }
+  // a serialisable anchor, for coming back after a language switch
+  window.MirajNav = { anchor() { const a = anchor(); return { id: a.l ? a.l.el.id : null, t: a.t }; } };
   function restore(a) {
     const c = a.l ? a.l.top + a.t * a.l.h : introTop + a.t * introH;
     scrollToY(c - vh / 2, true);
@@ -1463,4 +1493,4 @@
     restore(a);
   });
   requestAnimationFrame((t) => { lastTime = t; root.classList.add('is-ready'); frame(t); });
-})();
+});

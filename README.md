@@ -23,8 +23,38 @@ Then open http://localhost:5173. Opening `index.html` straight from disk also wo
 | `data.js` | All text, references, colours and level heights. `JOURNEY` is ordered Earth → Throne; `DESCENT` is ordered Earth → lowest depth. |
 | `styles.css` | Look and choreography. Every reveal is a function of `--s`, the level's progress (0 = arrived, 1 = leaving). |
 | `app.js` | Smooth-scroll engine (`CONFIG` at the top), scene SVGs (`SCENES`), layout modes, starfield, altimeter. |
+| `i18n.js` | Language choice, the language menu, fonts per script, and right-to-left support. |
+| `locales/*.js` | One file per language: interface strings (`ui`) and content (`t`), keyed like `heaven-1.points.0`. |
 | `sound.js` | Synthesised soundscape: the `MIX` table sets each layer's loudness per level. |
 | `tests/layout-audit.js` | Layout audit (see below). |
+
+## Languages
+
+The page is available in 12 languages:
+- English
+- العربية
+- বাংলা
+- اردو
+- हिन्दी
+- Bahasa Indonesia
+- Türkçe
+- Français
+- Español
+- Português
+- Русский
+- 中文
+
+How a language is chosen and shown:
+- **Order of choice:** `?lang=bn` in the address, then the visitor's last choice, then the browser's language, then English.
+- **Switching:** pick a language from the globe menu. The page reloads at the same point of the journey.
+- **Fonts:** each script loads its own font only when chosen: Anek Bangla, Noto Nastaliq Urdu, Noto Devanagari and Noto SC. Arabic and Urdu are laid out right to left.
+- **Never translated:** Qur'anic Arabic and hadith references. In Arabic, the verses and greetings appear only in the original, without a repeated meaning.
+- **Fallback:** a missing string falls back to English.
+- **Accuracy:** the translations are careful renderings of meaning, and each one says so in its Sources panel. Please have native speakers and scholars review them before wide sharing.
+
+To add a language:
+1. Copy a file in `locales/`.
+2. Add an entry to `LANGS` in `i18n.js`.
 
 ## Layout modes
 

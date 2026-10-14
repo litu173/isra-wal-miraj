@@ -26,20 +26,21 @@
   </nav>
 
   <div class="controls">
-    <button class="sound-btn" type="button" aria-pressed="false" aria-label="Sound">
+    <button class="sound-btn" type="button" aria-pressed="false" aria-label="Sound" data-i18n-label="sound">
       <svg class="sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l4 6M21 9l-4 6"/></svg>
       <svg class="sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
-      <span class="sound-label">Sound</span>
+      <span class="sound-label" data-i18n="sound">Sound</span>
     </button>
-    <button class="sources-btn" type="button" aria-haspopup="dialog">Sources</button>
+    <button class="sources-btn" type="button" aria-haspopup="dialog" data-i18n="sources">Sources</button>
   </div>
   <dialog class="sources" aria-labelledby="sources-title">
     <div class="sources__inner">
-      <h2 id="sources-title">Sources</h2>
-      <p class="sources__lede">Every scene is drawn from the Qur’an and from narrations in Sahih al-Bukhari and Sahih Muslim, with two further narrations graded sahih (Abu Dawud, at-Tirmidhi). The English is a careful paraphrase; please return to the full texts and to scholars for study.</p>
+      <h2 id="sources-title" data-i18n="sources">Sources</h2>
+      <p class="sources__translation" hidden></p>
+      <p class="sources__lede" data-i18n="sourcesLede">Every scene is drawn from the Qur’an and from narrations in Sahih al-Bukhari and Sahih Muslim, with two further narrations graded sahih (Abu Dawud, at-Tirmidhi). The English is a careful paraphrase; please return to the full texts and to scholars for study.</p>
       <dl class="sources__list"></dl>
-      <p class="sources__note">The visuals are symbolic light and geometry. No prophet, angel or person is depicted. Hadith numbers follow sunnah.com.</p>
-      <button class="sources__close" type="button">Close</button>
+      <p class="sources__note" data-i18n="sourcesNote">The visuals are symbolic light and geometry. No prophet, angel or person is depicted. Hadith numbers follow sunnah.com.</p>
+      <button class="sources__close" type="button" data-i18n="close">Close</button>
     </div>
   </dialog>
 
@@ -47,6 +48,7 @@
   <main id="journey"></main>
 
   <script src="data.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
   <script src="sound.js"></script>
 </body>

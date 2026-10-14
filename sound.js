@@ -16,7 +16,7 @@
  *  - app.js calls SoundScape.setPosition(levelA, levelB, t) every frame and
  *    the layers crossfade between the two levels' mixes below.
  */
-(() => {
+window.I18N.ready.then(() => {
   'use strict';
 
   // Loudness of each layer per level (0–1). Edit freely.
@@ -604,4 +604,4 @@
     },
     preview: { allah: () => ac && sayAllah(0), bird: () => ac && birdCall(), word: () => ac && writeWord(out.pens, 1) },
   };
-})();
+});
