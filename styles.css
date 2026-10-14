@@ -129,6 +129,8 @@ button { font: inherit; color: inherit; }
 .level__content {
   position: relative;
   z-index: 1;
+  /* set by app.js on desktop when a translation runs long: same layout, smaller text */
+  zoom: var(--fit, 1);
   max-width: 560px;
   /* gently fade as the level drops away beneath you */
   opacity: clamp(0, (1.2 - var(--s)) * 4, 1);
@@ -1294,6 +1296,7 @@ cite {
   text-align: left;
 }
 .level--flow .level__content {
+  zoom: 1;
   order: 1;
   position: relative;
   width: 100%;
@@ -1533,9 +1536,23 @@ html:is([lang="ar"], [lang="ur"], [lang="bn"], [lang="hi"], [lang="zh"]) :is(.ki
 html[lang="ur"] body { line-height: 2; }
 html[lang="ur"] :is(.point p, .ayah__en, .passage__text, .hero-quote p, .intro__sub, .greet__en, .level__title, .meeting__en) { line-height: 2.1; }
 html[lang="ur"] .level__title { font-size: clamp(22px, 2.3vw, 34px); }
+html[lang="ur"] .dialogue { line-height: 1.75; gap: 0 16px; }
 html[lang="ur"] .passage__text { font-size: clamp(20px, 2.6vw, 34px); }
 
-/* Right-to-left (Arabic, Urdu) */
+/* Right-to-left (Arabic, Urdu): the page keeps English's arrangement —
+   picture and text stay where they are; only the words read right to left */
+html[dir="rtl"] .level__pin,
+html[dir="rtl"] .level--phased .level__content,
+html[dir="rtl"] .level--wide .level__content,
+html[dir="rtl"] .rivers-legend,
+html[dir="rtl"] .choice,
+html[dir="rtl"] .counter { direction: ltr; }
+html[dir="rtl"] .level__content > *,
+html[dir="rtl"] .level--wide .level__content > *,
+html[dir="rtl"] .level--phased .phase > *,
+html[dir="rtl"] .rv,
+html[dir="rtl"] .vessel,
+html[dir="rtl"] .counter__meta { direction: rtl; }
 html[dir="rtl"] .altimeter,
 html[dir="rtl"] .controls { direction: ltr; }
 html[dir="rtl"] .lang-menu { direction: rtl; }

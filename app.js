@@ -1098,10 +1098,20 @@ window.I18N.ready.then(() => {
     for (const l of levels) {
       l.el.classList.toggle('level--flow', all);
       if (all) continue;
-      // Pinned unless its text cannot fit the screen
+      // Desktop keeps one design in every language: when a level's words run
+      // longer than the screen (longer translations, taller scripts), its text
+      // is scaled down to fit rather than changing layout. Stacking is a last
+      // resort for text that would have to shrink below 70%.
       const cs = getComputedStyle(l.pin);
       const room = l.pin.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-      if (l.content.scrollHeight > room + 2) l.el.classList.add('level--flow');
+      let fit = 1;
+      l.el.style.setProperty('--fit', 1);
+      const tall = () => l.content.getBoundingClientRect().height > room + 2;
+      for (let i = 0; i < 12 && tall() && fit > 0.7; i++) {
+        fit = Math.max(0.7, fit * Math.min(0.97, (room / l.content.getBoundingClientRect().height) * 0.99));
+        l.el.style.setProperty('--fit', fit.toFixed(3));
+      }
+      if (tall()) { l.el.style.setProperty('--fit', 1); l.el.classList.add('level--flow'); }
     }
     for (const l of levels) l.flow = l.el.classList.contains('level--flow');
     observeReveals();

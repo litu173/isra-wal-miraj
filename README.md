@@ -74,7 +74,8 @@ To add a language:
 
 - **Pinned** (desktop and tablet landscape): each level sticks while its content plays out.
 - **Stacked** (under 900px wide or 560px tall): picture and text follow one another at full width and reveal as they scroll into view.
-- A pinned level whose text cannot fit the screen switches to stacked on its own.
+- **Same desktop design in every language:** a pinned level whose words run longer than the screen (longer translations, taller scripts) scales its text down, to 70% at most, instead of changing layout. It switches to stacked only beyond that.
+- **Arabic and Urdu** keep English's arrangement of picture and text; only the words read right to left.
 
 ## Sound
 
