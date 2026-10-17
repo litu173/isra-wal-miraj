@@ -15,8 +15,9 @@
 
   /* palette */
   --ink: #f4ecd8;
-  --muted: rgba(244, 236, 216, 0.74);
-  --faint: rgba(244, 236, 216, 0.46);
+  /* secondary text: tuned for WCAG AA (4.5:1) on every sky of the journey */
+  --muted: rgba(244, 236, 216, 0.84);
+  --faint: rgba(244, 236, 216, 0.7);
   --hair: rgba(244, 236, 216, 0.14);
   --gold: #e3b867;
 
@@ -606,8 +607,8 @@ cite {
 /* Throne — beyond depiction: only light */
 .level--arsh {
   --ink: #2b1f08;
-  --muted: rgba(43, 31, 8, 0.78);
-  --faint: rgba(43, 31, 8, 0.52);
+  --muted: rgba(43, 31, 8, 0.88);
+  --faint: rgba(43, 31, 8, 0.76);
   --hair: rgba(43, 31, 8, 0.16);
   color: var(--ink);
 }
@@ -617,7 +618,7 @@ cite {
 }
 .level--arsh .level__ar {
   font-size: clamp(44px, 7vw, 110px);
-  background: linear-gradient(180deg, #c99a3a, #6e4d12);
+  background: linear-gradient(180deg, #8a6418, #4a3208);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -700,8 +701,8 @@ cite {
 
 .level--hell {
   --ink: #f6e4d8;
-  --muted: rgba(246, 228, 216, 0.76);
-  --faint: rgba(246, 228, 216, 0.48);
+  --muted: rgba(246, 228, 216, 0.86);
+  --faint: rgba(246, 228, 216, 0.72);
   --hair: rgba(255, 140, 90, 0.18);
 }
 .level--hell .level__ar {
@@ -1007,9 +1008,9 @@ cite {
   transition: color 0.3s ease;
 }
 .intro__go--up { color: var(--gold); opacity: calc(1 - clamp(0, var(--u) * -2, 1)); }
-.intro__go--down { color: rgba(255, 140, 90, 0.85); opacity: calc(1 - clamp(0, var(--u) * 2, 1)); }
+.intro__go--down { color: #ffb08a; opacity: calc(1 - clamp(0, var(--u) * 2, 1)); }
 .intro__go--up:hover { color: #fff6dc; }
-.intro__go--down:hover { color: #ffb08a; }
+.intro__go--down:hover { color: #ffd0b8; }
 .intro__chev {
   width: 14px;
   height: 14px;
@@ -1166,6 +1167,11 @@ cite {
   transition: transform 0.4s ease, background 0.4s ease, opacity 0.4s ease;
 }
 .altimeter__label {
+  padding: 3px 9px;
+  line-height: 1.55; /* the pill must hold tall scripts (Bangla, Nastaliq) too */
+  border-radius: 999px;
+  background: rgba(5, 7, 15, 0.68);
+  color: #f4ecd8;
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1188,6 +1194,7 @@ cite {
 .altimeter button:focus-visible { outline: none; }
 .altimeter button:focus-visible i { outline: 1px solid var(--nav-accent); outline-offset: 3px; }
 .altimeter .is-hell button { color: #ff9a6a; }
+.is-light .altimeter__label { background: rgba(255, 250, 240, 0.85); color: #3d2a07; }
 /* the Earth: a diamond on the same line */
 .altimeter .is-earth button i { border-radius: 1px; transform: rotate(45deg); opacity: 0.9; }
 .altimeter .is-earth button[aria-current] i { transform: rotate(45deg) scale(1.35); }
@@ -1212,9 +1219,9 @@ cite {
   gap: 8px;
   height: 34px;
   padding: 0 14px;
-  border: 1px solid currentColor;
+  border: 1px solid rgba(244, 236, 216, 0.22);
   border-radius: 999px;
-  background: rgba(5, 7, 15, 0.35);
+  background: rgba(5, 7, 15, 0.55);
   font-size: 10.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1229,7 +1236,7 @@ cite {
 .sound-btn[aria-pressed="true"] .sound-off { display: none; }
 .sound-btn[aria-pressed="true"] { background: rgba(227, 184, 103, 0.2); opacity: 1; }
 .is-light .altimeter, .is-light .controls { color: #5a4210; }
-.is-light .controls button { background: rgba(255, 250, 240, 0.55); }
+.is-light .controls button { background: rgba(255, 250, 240, 0.82); border-color: rgba(61, 42, 7, 0.22); }
 
 .sources {
   width: min(620px, calc(100vw - 32px));
@@ -1537,6 +1544,7 @@ html[lang="ur"] body { line-height: 2; }
 html[lang="ur"] :is(.point p, .ayah__en, .passage__text, .hero-quote p, .intro__sub, .greet__en, .level__title, .meeting__en) { line-height: 2.1; }
 html[lang="ur"] .level__title { font-size: clamp(22px, 2.3vw, 34px); }
 html[lang="ur"] .dialogue { line-height: 1.75; gap: 0 16px; }
+html[lang="ur"] .altimeter__label { line-height: 2.1; padding: 1px 10px; }
 html[lang="ur"] .passage__text { font-size: clamp(20px, 2.6vw, 34px); }
 
 /* Right-to-left (Arabic, Urdu): the page keeps English's arrangement —
@@ -1577,12 +1585,12 @@ html[dir="rtl"] .rv { justify-items: start; }
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 42px;
+  min-height: 42px;
   padding: 4px 16px 4px 4px;
   border: 1px solid var(--hair);
   border-radius: 999px;
-  background: rgba(5, 7, 15, 0.35);
-  color: var(--ink);
+  background: rgba(5, 7, 15, 0.72);
+  color: #f4ecd8;
   text-decoration: none;
   transition: background 0.3s ease, color 0.6s ease;
 }
@@ -1590,13 +1598,48 @@ html[dir="rtl"] .rv { justify-items: start; }
 .brand:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
 .brand__mark { width: 34px; height: 34px; border-radius: 9px; flex: none; }
 .brand__text { display: grid; line-height: 1.15; }
-.brand__ar { font-family: var(--arabic); font-size: 13px; color: var(--gold); text-align: left; }
+.brand__ar { font-family: var(--arabic); font-size: 13px; color: #f0cf8a; text-align: left; }
 .brand__name { font-family: var(--serif); font-size: 15px; font-weight: 500; white-space: nowrap; }
 html[lang="ar"] .brand__ar { display: none; }
 html[lang="ar"] .brand__name { font-family: var(--arabic); }
-.is-light .brand { background: rgba(255, 250, 240, 0.6); color: #5a4210; }
+.is-light .brand { background: rgba(255, 250, 240, 0.82); color: #3d2a07; }
+.is-light .brand__ar { color: #6e4d12; }
 @media (max-width: 899px) {
   .brand { top: 10px; left: 10px; height: 36px; padding: 2px; gap: 0; }
   .brand__mark { width: 30px; height: 30px; border-radius: 8px; }
   .brand__text { display: none; }
+}
+
+/* the passage that leads into the Throne sits in its light: plain dark ink */
+.passage--onlight .passage__text { color: #2b1f08; }
+.passage--onlight .passage__ref { color: #5a3c08; opacity: var(--v); }
+.passage--onlight .passage__thread { background: linear-gradient(180deg, transparent, rgba(110, 77, 18, 0.35) 25%, transparent 42%, transparent 58%, rgba(110, 77, 18, 0.35) 75%, transparent); }
+
+/* Stacked Throne: always on its own light, whatever the sky is doing */
+.level--flow.level--arsh .level__pin {
+  background: radial-gradient(120% 90% at 50% 40%, #fffaf0 0%, #f7ecd0 60%, rgba(247, 236, 208, 0.9) 100%);
+}
+/* Stacked depth: the zooming glow stays behind the words, not through them */
+.level--flow .abyss-core { opacity: calc(0.6 - clamp(0, (var(--s) - 0.7) * 2, 0.6)); }
+
+/* Stacked: the Throne's light continues behind its lead-in line, then fades
+   back to the night before the Pens begin */
+@media (max-width: 899px), (max-height: 560px) {
+  .passage--onlight {
+    background: linear-gradient(180deg, #f7ecd0 0%, #f7ecd0 68%, rgba(247, 236, 208, 0) 100%);
+  }
+}
+.level--flow.level--abyss .level__content::before {
+  background: radial-gradient(closest-side, rgba(10, 2, 1, 0.8), rgba(10, 2, 1, 0.4) 70%, transparent);
+}
+
+/* Its Fire: the words keep a deep shadow even where they reach the flames */
+.level--flames:not(.level--flow) .level__content::before {
+  inset: -70px -110px;
+  background: radial-gradient(closest-side, rgba(12, 3, 1, 0.86), rgba(12, 3, 1, 0.6) 70%, transparent);
+}
+html[lang="ur"] .brand__name { line-height: 1.9; }
+.level--flames .ayah__en { color: var(--ink); }
+@media (max-height: 760px) {
+  .level--flames:not(.level--flow) .flames { transform: translateY(calc((1 - var(--g)) * 30% + 9%)); }
 }

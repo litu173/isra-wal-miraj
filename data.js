@@ -379,7 +379,7 @@ window.JOURNEY = [
     kicker: 'A level beyond',
     ar: 'صريف الأقلام',
     title: 'The scratching of the Pens',
-    sky: ['#3a2b10', '#8a6a30'],
+    sky: ['#241a09', '#4a3818'],
     accent: '#fff1c9',
     height: 340,
     points: [
@@ -417,7 +417,7 @@ window.JOURNEY = [
     title: 'Al-‘Arsh al-‘Azim',
     place: 'The Mighty Throne — beyond all description',
     sky: ['#f7ecd0', '#fffaf0'],
-    accent: '#a87a1e',
+    accent: '#7a5410',
     height: 260,
     points: [
       {

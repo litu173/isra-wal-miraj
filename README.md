@@ -107,6 +107,20 @@ It reports:
 - cropped illustrations
 - an off-centre Earth screen
 
+## Testing contrast (WCAG AA)
+
+`tests/contrast/` measures the real contrast of every piece of text against the actual pixels behind it, so gradients, glows and painted scenes count. With the local server running:
+
+```bash
+node tests/contrast/run.mjs /tmp/contrast http://localhost:5173/ en,bn,ar 1440x900,390x844
+```
+
+```bash
+python3 tests/contrast/analyze.py /tmp/contrast
+```
+
+The first command uses headless Chrome to visit every stop of the journey. At each stop it records each run of text (colour, opacity and size) and takes a screenshot with all text hidden. The second command compares each text colour with the worst-case background behind it and lists anything below 4.5:1, or 3:1 for large text.
+
 ## Tuning
 
 - **Scroll feel:** `CONFIG.wheelEase` in `app.js` (lower is silkier, higher is snappier).

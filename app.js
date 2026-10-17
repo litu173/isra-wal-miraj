@@ -318,7 +318,7 @@ window.I18N.ready.then(() => {
       <svg class="scene-svg pens-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <defs>
           <radialGradient id="pn-l" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stop-color="#fff6dc" stop-opacity=".6"/>
+            <stop offset="0" stop-color="#fff6dc" stop-opacity=".22"/>
             <stop offset="1" stop-color="#fff6dc" stop-opacity="0"/>
           </radialGradient>
         </defs>
@@ -973,10 +973,10 @@ window.I18N.ready.then(() => {
   }
 
   /** A short line of narration between two levels — the thread of the story. */
-  function renderPassage(p, dir) {
+  function renderPassage(p, dir, onLight = false) {
     if (!p) return '';
     return `
-    <div class="passage passage--${dir}">
+    <div class="passage passage--${dir}${onLight ? ' passage--onlight' : ''}">
       <span class="passage__thread" aria-hidden="true"></span>
       <p class="passage__text">${esc(p.text)}</p>
       ${p.ref ? `<cite class="passage__ref">${esc(p.ref)}</cite>` : ''}
@@ -1034,7 +1034,7 @@ window.I18N.ready.then(() => {
   const main = document.getElementById('journey');
   const html = [];
   // Heavens: highest first; each passage sits below its level (you meet it on the way up)
-  for (let i = DATA.length - 1; i >= H; i--) html.push(renderLevel(DATA[i], i), renderPassage(DATA[i].passage, 'up'));
+  for (let i = DATA.length - 1; i >= H; i--) html.push(renderLevel(DATA[i], i), renderPassage(DATA[i].passage, 'up', DATA[i].scene === 'arsh'));
   html.push(renderIntro());
   // Beneath: each passage sits above its level (you meet it on the way down)
   for (let i = H - 1; i >= 0; i--) html.push(renderPassage(DATA[i].passage, 'down'), renderLevel(DATA[i], i));
@@ -1366,12 +1366,24 @@ window.I18N.ready.then(() => {
         if (c <= a && c >= b) { f = i + (a - c) / (a - b); break; }
       }
     }
-    const i0 = Math.floor(f), i1 = Math.min(n - 1, i0 + 1), t = smooth(f - i0);
+    // most of each colour change happens in the passage between two levels,
+    // so a level's own words always sit on its own sky
+    const i0 = Math.floor(f), i1 = Math.min(n - 1, i0 + 1);
+    // Into the Throne the light arrives early, so the passage before it already
+    // sits in the light and reads in dark ink
+    const earlyLight = !byIndex[n - 1].flow; // stacked, the Throne carries its own light
+    const intoThrone = DATA[i1].scene === 'arsh' && i1 !== i0;
+    const t = intoThrone && earlyLight
+      ? smooth(clamp((f - i0 - 0.12) / 0.3, 0, 1))
+      : intoThrone // stacked: its light band brings the change, the sky follows late
+        ? smooth(clamp((f - i0 - 0.72) / 0.28, 0, 1))
+        : smooth(clamp((f - i0 - 0.25) / 0.5, 0, 1));
     const tq = Math.round(t * 48) / 48; // colour steps finer than the eye can see
     setVar('--sky-top', mix(skies[i0][0], skies[i1][0], tq));
     setVar('--sky-bot', mix(skies[i0][1], skies[i1][1], tq));
     const fa = f - H; // 0 = Makkah, negative = beneath the Earth
-    setVar('--glow', clamp((fa - 7) / 5, 0, 1).toFixed(2));
+    const throneAt = DATA.length - H - 1;
+    setVar('--glow', (earlyLight ? clamp((fa - throneAt + 0.88) / 0.3, 0, 1) : clamp((fa - throneAt + 0.2) / 0.2, 0, 1)).toFixed(2));
     const depth = clamp(-(fa + 0.15), 0, 1); // the fire's glow from below
     setVar('--hell', (depth * (1 - clamp((-fa - H + 1.6) / 1.2, 0, 0.75))).toFixed(2));
 
